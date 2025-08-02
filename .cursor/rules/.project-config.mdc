@@ -1,0 +1,140 @@
+---
+description: Interview preparation project configuration
+globs: 
+alwaysApply: true
+---
+{
+  "role": "architect",
+  "expertise_level": "software_fellow",
+  "workspace_config": {
+    "path_detection": {
+      "command": "tree -L 4 -a -I 'node_modules|.git|__pycache__|.DS_Store|pytest_cache|.vscode|target'",
+      "base_path": "${detected_root}",
+      "create_if_missing": true
+    },
+    "repositories": {
+      "microapple": {
+        "path": "${base_path}"
+      }
+    },
+    "commands": {
+      "create_adr": {
+        "description": "Create a new Architecture Decision Record",
+        "command": "mkdir -p ${base_path}/docs/adr && touch ${base_path}/docs/adr/ADR-$(printf '%03d' $1)-$2.md && echo 'ADR created: ADR-$(printf '%03d' $1)-$2.md'",
+        "is_idempotent": false
+      },
+      "start_implementation_phase": {
+        "description": "Create implementation phase structure with ADR and code scaffolding",
+        "command": "mkdir -p ${base_path}/src/main/java/com/microapple/$1 ${base_path}/src/test/java/com/microapple/$1 && touch ${base_path}/docs/adr/ADR-$(printf '%03d' $2)-$1-implementation.md && echo 'Implementation phase started: $1'",
+        "is_idempotent": false
+      },
+      "create_demo_script": {
+        "description": "Create demo script for specific feature",
+        "command": "mkdir -p ${base_path}/demo/scripts && touch ${base_path}/demo/scripts/$1_demo.md ${base_path}/demo/scripts/$1_setup.sh && echo 'Demo script created: $1'",
+        "is_idempotent": false
+      },
+      "create_performance_test": {
+        "description": "Create performance test suite for component",
+        "command": "mkdir -p ${base_path}/src/test/java/com/microapple/performance && touch ${base_path}/src/test/java/com/microapple/performance/$1PerformanceTest.java && echo 'Performance test created: $1PerformanceTest.java'",
+        "is_idempotent": false
+      }
+    },
+    "artifact_management": {
+      "owned_artifacts": {
+        "technical_documentation": {
+          "templates": {
+            "adr_template": "${base_path}/docs/templates/adr_template.md",
+            "implementation_guide": "${base_path}/docs/templates/implementation_guide.md",
+            "demo_script_template": "${base_path}/docs/templates/demo_script_template.md"
+          },
+          "required_files": [
+            "docs/checklist.md",
+            "docs/tech-stack.md", 
+            "docs/system-design.md",
+            "docs/ddd.md",
+            "docs/service-blueprint.md"
+          ]
+        },
+        "implementation_artifacts": {
+          "core_modules": [
+            "src/main/java/com/microapple/cdc",
+            "src/main/java/com/microapple/streaming", 
+            "src/main/java/com/microapple/datalake",
+            "src/main/java/com/microapple/testenvironment",
+            "src/main/java/com/microapple/nlp"
+          ],
+          "demo_materials": [
+            "demo/scripts",
+            "demo/data",
+            "demo/environments"
+          ]
+        }
+      },
+      "initial_creation": {
+        "required_directories": [
+          "${base_path}/src/main/java/com/microapple",
+          "${base_path}/src/test/java/com/microapple", 
+          "${base_path}/docs/adr",
+          "${base_path}/docs/templates",
+          "${base_path}/demo/scripts",
+          "${base_path}/demo/data",
+          "${base_path}/docker",
+          "${base_path}/k8s"
+        ],
+        "auto_initialize": true
+      }
+    },
+    "git_workflow": {
+      "branch_patterns": {
+        "feature_development": "feature/{component_name}",
+        "adr_documentation": "adr/{decision_topic}",
+        "performance_optimization": "perf/{optimization_area}",
+        "demo_preparation": "demo/{demo_scenario}"
+      },
+      "commit_conventions": {
+        "feature": "feat({component}): {description}",
+        "adr": "docs(adr): {decision_title}",
+        "performance": "perf({component}): {optimization_description}", 
+        "demo": "demo({scenario}): {demo_description}",
+        "test": "test({component}): {test_description}"
+      }
+    },
+    "invariants": {
+      "THE_FIRST_RULE": [
+        "Before making any code changes give me thought plan (TP). It should include idea, files to add, files to update with brief reasons.",
+        "It should also include progressive thinking, stepping back and looking at the bigger picture and seeing how it can fit in the app the best and long term.",
+        "For now and ever do not make changes unless I approve them in!"
+      ],
+      "technical_excellence": [
+        "EVERY IMPLEMENTATION MUST BE PRODUCTION-READY AND DEMO-WORTHY",
+        "WRITE COMPREHENSIVE TESTS FOR ALL CORE COMPONENTS",
+        "DOCUMENT ARCHITECTURAL DECISIONS WITH RATIONALE AND TRADE-OFFS",
+        "ENSURE ALL CODE DEMONSTRATES STAFF+ LEVEL TECHNICAL LEADERSHIP"
+      ],
+      "apple_interview_focus": [
+        "BUILD FEATURES THAT DIRECTLY ADDRESS APPLE'S TECHNICAL CHALLENGES",
+        "OPTIMIZE FOR DEMONSTRABLE SCALE (100K+ events/sec capability)",
+        "FOCUS ON RELIABILITY PATTERNS (CIRCUIT BREAKERS, BACKPRESSURE)",
+        "PRIORITIZE FEATURES THAT SHOWCASE SYSTEMS THINKING"
+      ],
+      "demo_readiness": [
+        "EVERY FEATURE MUST HAVE A WORKING DEMO SCRIPT",
+        "PERFORMANCE CHARACTERISTICS MUST BE MEASURABLE AND DOCUMENTED", 
+        "FAILURE SCENARIOS MUST BE DEMONSTRABLE AND RECOVERABLE",
+        "SCALING BOTTLENECKS MUST BE IDENTIFIED AND DOCUMENTED"
+      ],
+      "adr_discipline": [
+        "DOCUMENT EVERY SIGNIFICANT TECHNICAL DECISION AS AN ADR",
+        "INCLUDE CONTEXT, OPTIONS CONSIDERED, AND DECISION RATIONALE",
+        "LINK ADRS TO IMPLEMENTATION AND DEMONSTRATE OUTCOMES",
+        "UPDATE ADRS WHEN DECISIONS CHANGE OR NEW INFORMATION EMERGES"
+      ],
+      "implementation_quality": [
+        "FOLLOW SPRING BOOT BEST PRACTICES AND ENTERPRISE PATTERNS",
+        "IMPLEMENT OBSERVABILITY FROM DAY ONE (METRICS, TRACING, LOGGING)",
+        "USE TESTCONTAINERS FOR REALISTIC INTEGRATION TESTING",
+        "ENSURE GRACEFUL DEGRADATION UNDER LOAD"
+      ]
+    }
+  }
+}
