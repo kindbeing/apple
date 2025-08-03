@@ -17,11 +17,12 @@ We need to establish foundational technology choices for **MicroApple** - a prod
 - **Alternative Considered**: Maven (rejected - slower builds, less flexible for complex multi-module projects)
 
 ### Framework: **Spring Boot 3.5.4**
-- **Core**: Spring Boot 3.5.4 with Java 21 LTS
+- **Core**: Spring Boot 3.5.4 with Java 21 LTS (Amazon Corretto)
+- **Toolchain**: Gradle auto-provisioning for consistent Java 21 across environments
 - **Reactive**: Spring WebFlux for non-blocking I/O (>100K events/sec requirement)
 - **Streaming**: Spring Cloud Stream with Kafka Binder
 - **Data**: Spring Data JPA + R2DBC for reactive database access
-- **Rationale**: Apple values enterprise stability. Java 21 LTS + latest Spring Boot. Reactive stack essential for volume requirements.
+- **Rationale**: Java 21 LTS provides enterprise stability. Corretto is production-proven. Auto-provisioning ensures reproducible builds.
 
 ### Package Structure
 ```
