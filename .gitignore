@@ -1,1 +1,25 @@
 .idea
+.gradle
+
+# Build outputs
+build/
+out/
+bin/
+
+# IDE files
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime
+.env
+.env.local
