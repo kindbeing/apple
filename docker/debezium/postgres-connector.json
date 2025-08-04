@@ -1,0 +1,22 @@
+{
+  "name": "microapple-postgres-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "postgres",
+    "database.port": "5432",
+    "database.user": "microapple",
+    "database.password": "microapple123",
+    "database.dbname": "microapple",
+    "topic.prefix": "microapple-postgres",
+    "table.include.list": "public.app_purchases",
+    "plugin.name": "pgoutput",
+    "slot.name": "microapple_slot",
+    "publication.name": "microapple_publication",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
+    "schema.history.internal.kafka.topic": "microapple.schema.history",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter.schemas.enable": "false"
+  }
+}

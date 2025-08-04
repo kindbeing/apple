@@ -12,7 +12,7 @@ Build **MicroApple** - a Spring-based demo that shows Apple *"I Speak Your Langu
 
 ## 📋 The Holy Job Checklist
 
-**→ [Complete The Checklist](docs/checklist.md) ← Your roadmap to landing the $181K-$318K role**
+**→ [Complete The Checklist](docs/checklist.md) ← Your roadmap to landing the Staff Software Engineer role**
 
 The checklist contains everything you need to master to ace the Apple interview:
 - ✅ Multi-Database CDC Mastery (Debezium, Schema Evolution, Backpressure)
@@ -37,5 +37,4 @@ See [holy_job.md](holy_job.md) for complete job description and requirements.
 ---
 
 **Target Role**: Staff Software Engineer - ASE Content Architecture Team  
-**Compensation**: $181,900 - $318,200 + equity + benefits  
 **Prep Strategy**: Build production-ready technical demos that solve Apple's exact problems 
