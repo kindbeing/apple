@@ -23,7 +23,23 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.kafka:spring-kafka'
 	runtimeOnly 'org.postgresql:postgresql'
+	
+	// Apache Iceberg dependencies (temporarily commented out for demo)
+	 implementation 'org.apache.iceberg:iceberg-core:1.4.3'
+	 implementation 'org.apache.iceberg:iceberg-api:1.4.3'
+	 implementation 'org.apache.iceberg:iceberg-data:1.4.3'
+	 implementation 'org.apache.iceberg:iceberg-aws:1.4.3'
+	
+	// AWS SDK for S3 compatibility with MinIO
+	implementation 'software.amazon.awssdk:s3:2.21.29'
+	implementation 'software.amazon.awssdk:sts:2.21.29'
+	implementation 'software.amazon.awssdk:glue:2.21.29'
+	
+	// JSON processing for CDC events
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.apache.kafka:kafka-clients'

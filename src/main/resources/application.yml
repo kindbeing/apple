@@ -36,3 +36,18 @@ logging:
   level:
     com.ncode.microapple: DEBUG
     org.springframework.boot.autoconfigure: INFO
+
+# Kafka configuration
+kafka:
+  bootstrap-servers: localhost:9092
+  consumer:
+    group-id: microapple-app
+    auto-offset-reset: earliest
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+# Iceberg configuration
+iceberg:
+  catalog:
+    uri: http://localhost:8181
+  warehouse: s3://iceberg-warehouse/
