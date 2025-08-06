@@ -1,4 +1,4 @@
-# The Holy Job Checklist ✅
+# The Job Checklist ✅
 
 **Mission**: Build MicroApple - A Spring-based demo that shows Apple "I Speak Your Language"
 
@@ -131,4 +131,4 @@
 
 ---
 
-*Complete this checklist = Land the holy job at Apple* 🍎 
+*Complete this checklist = Land the at Apple* 🍎 

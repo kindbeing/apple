@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -28,6 +29,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 public class CdcIntegrationTest {
 
+    private static final String CDC_TOPIC = "microapple-postgres.public.app_purchases";
+    private static final Duration POLL_TIMEOUT = Duration.ofSeconds(2);
+    private static final Duration CDC_PROCESSING_DELAY = Duration.ofMillis(3000);
+    private static final int MAX_RETRY_ATTEMPTS = 5;
+
     @Autowired
     private AppPurchaseRepository repository;
 
@@ -37,26 +43,38 @@ public class CdcIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        consumer = createKafkaConsumer();
+        consumer.subscribe(List.of(CDC_TOPIC));
+    }
+
+    private KafkaConsumer<String, String> createKafkaConsumer() {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consumer-" + UUID.randomUUID());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // Process all messages for this consumer group
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
         
-        consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(List.of("microapple-postgres.public.app_purchases"));
+        return new KafkaConsumer<>(props);
     }
 
     @AfterEach
     void tearDown() {
-        // Clean up test data
+        cleanupTestData();
+        closeConsumer();
+    }
+
+    private void cleanupTestData() {
         for (String transactionId : testTransactionIds) {
             repository.findByTransactionId(transactionId)
                 .ifPresent(repository::delete);
         }
         testTransactionIds.clear();
-        
+    }
+
+    private void closeConsumer() {
         if (consumer != null) {
             consumer.close();
         }
@@ -64,65 +82,119 @@ public class CdcIntegrationTest {
 
     @Test
     void shouldCapturePurchaseInCDC() throws Exception {
-        // Given
+        // Given: Create a test purchase
+        TestPurchase testPurchase = createTestPurchase();
+        
+        // When: Save purchase to trigger CDC event
+        repository.save(testPurchase.getAppPurchase());
+        
+        // Allow time for CDC processing
+        sleep(CDC_PROCESSING_DELAY.toMillis());
+        
+        // Then: Verify CDC event was published to Kafka
+        assertCdcEventWasPublished(testPurchase);
+    }
+
+    private TestPurchase createTestPurchase() {
         String userId = "user999";
         String appId = "com.apple.numbers";
         BigDecimal price = new BigDecimal("4.99");
         String transactionId = UUID.randomUUID().toString();
+        
         testTransactionIds.add(transactionId); // Track for cleanup
         
         AppPurchase purchase = new AppPurchase(userId, appId, price, transactionId);
-        
-        // When - Insert data into PostgreSQL (this will commit immediately)
-        AppPurchase saved = repository.save(purchase);
-        
-        // Give CDC some time to process and publish the event
-        Thread.sleep(2000);
-        
-        // Then - Check for CDC event in Kafka (retry logic)
-        boolean foundMatchingEvent = false;
+        return new TestPurchase(purchase, userId, appId, price, transactionId);
+    }
+
+    private void assertCdcEventWasPublished(TestPurchase testPurchase) {
+        boolean eventFound = false;
         int attempts = 0;
-        int maxAttempts = 5;
         
-        while (!foundMatchingEvent && attempts < maxAttempts) {
+        while (!eventFound && attempts < MAX_RETRY_ATTEMPTS) {
             attempts++;
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(3));
+            ConsumerRecords<String, String> records = consumer.poll(POLL_TIMEOUT);
             
             for (ConsumerRecord<String, String> record : records) {
-                try {
-                    JsonNode event = objectMapper.readTree(record.value());
-                    
-                    // Look for the change event directly (not nested under "payload")
-                    if (event.get("after") != null) {
-                        JsonNode after = event.get("after");
-                        JsonNode transactionIdNode = after.get("transaction_id");
-                        
-                        if (transactionIdNode != null && !transactionIdNode.isNull()) {
-                            String eventTransactionId = transactionIdNode.asText();
-                            
-                            if (transactionId.equals(eventTransactionId)) {
-                                assertThat(after.get("user_id").asText()).isEqualTo(userId);
-                                assertThat(after.get("app_id").asText()).isEqualTo(appId);
-                                assertThat(after.get("price")).isNotNull();
-                                assertThat(event.get("op").asText()).isEqualTo("c"); // CREATE operation
-                                foundMatchingEvent = true;
-                                break;
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    // Skip malformed JSON records
-                    continue;
+                if (isCdcEventForPurchase(record, testPurchase)) {
+                    validateCdcEventContent(record, testPurchase);
+                    eventFound = true;
+                    break;
                 }
             }
             
-            if (!foundMatchingEvent && attempts < maxAttempts) {
-                Thread.sleep(1000); // Wait before next attempt
+            if (!eventFound && attempts < MAX_RETRY_ATTEMPTS) {
+                sleep(500); // Wait before next poll attempt
             }
         }
         
-        assertThat(foundMatchingEvent)
-            .withFailMessage("CDC event for transaction %s not found in Kafka topic after %d attempts.", transactionId, attempts)
+        assertThat(eventFound)
+            .withFailMessage("CDC event for transaction %s not found after %d attempts", 
+                testPurchase.getTransactionId(), attempts)
             .isTrue();
+    }
+
+    private boolean isCdcEventForPurchase(ConsumerRecord<String, String> record, TestPurchase testPurchase) {
+        try {
+            JsonNode event = objectMapper.readTree(record.value());
+            
+            if (event.get("after") != null) {
+                JsonNode after = event.get("after");
+                JsonNode transactionIdNode = after.get("transaction_id");
+                
+                return transactionIdNode != null && 
+                       !transactionIdNode.isNull() && 
+                       testPurchase.getTransactionId().equals(transactionIdNode.asText());
+            }
+        } catch (Exception e) {
+            // Skip malformed JSON records
+        }
+        return false;
+    }
+
+    private void validateCdcEventContent(ConsumerRecord<String, String> record, TestPurchase testPurchase) {
+        try {
+            JsonNode event = objectMapper.readTree(record.value());
+            JsonNode after = event.get("after");
+            
+            assertThat(after.get("user_id").asText()).isEqualTo(testPurchase.getUserId());
+            assertThat(after.get("app_id").asText()).isEqualTo(testPurchase.getAppId());
+            assertThat(after.get("price")).isNotNull();
+            assertThat(event.get("op").asText()).isEqualTo("c"); // CREATE operation
+        } catch (Exception e) {
+            throw new AssertionError("Failed to validate CDC event content", e);
+        }
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Test interrupted", e);
+        }
+    }
+
+    // Helper class to encapsulate test purchase data
+    private static class TestPurchase {
+        private final AppPurchase appPurchase;
+        private final String userId;
+        private final String appId;
+        private final BigDecimal price;
+        private final String transactionId;
+
+        public TestPurchase(AppPurchase appPurchase, String userId, String appId, BigDecimal price, String transactionId) {
+            this.appPurchase = appPurchase;
+            this.userId = userId;
+            this.appId = appId;
+            this.price = price;
+            this.transactionId = transactionId;
+        }
+
+        public AppPurchase getAppPurchase() { return appPurchase; }
+        public String getUserId() { return userId; }
+        public String getAppId() { return appId; }
+        public BigDecimal getPrice() { return price; }
+        public String getTransactionId() { return transactionId; }
     }
 }

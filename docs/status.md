@@ -80,7 +80,7 @@
 
 ## 🔗 Quick Reference Links
 
-- **[The Holy Job Checklist](checklist.md)** - Complete feature roadmap
+- **[The Job Checklist](checklist.md)** - Complete feature roadmap
 - **[Technical Stack](tech-stack.md)** - Technology decisions & rationale
 - **[System Design](system-design.md)** - Architecture overview
 - **[Domain Model](ddd.md)** - Business logic structure

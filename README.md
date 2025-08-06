@@ -10,7 +10,7 @@ Build **MicroApple** - a Spring-based demo that shows Apple *"I Speak Your Langu
 
 **Quick Status Check**: See current progress, next tasks, and where to pick up development with minimal friction.
 
-## 📋 The Holy Job Checklist
+## 📋 The Job Checklist
 
 **→ [Complete The Checklist](docs/checklist.md) ← Your roadmap to landing the Staff Software Engineer role**
 
@@ -25,14 +25,14 @@ The checklist contains everything you need to master to ace the Apple interview:
 
 ### 📋 Project Documentation
 - **[📊 Project Status](docs/status.md)** - Current state, progress tracking, next steps
-- **[📋 The Holy Job Checklist](docs/checklist.md)** - Complete roadmap and success criteria
+- **[📋 The Job Checklist](docs/checklist.md)** - Complete roadmap and success criteria
 - **[🏗️ System Design](docs/system-design.md)** - Architecture and component interactions
 - **[⚙️ Technology Stack](docs/tech-stack.md)** - Technical choices and rationale  
 - **[🎯 Domain-Driven Design](docs/ddd.md)** - Domain modeling and bounded contexts
 - **[🔗 Service Blueprint](docs/service-blueprint.md)** - Service interactions and deployment
 
 ### 📄 Reference Materials
-See [holy_job.md](holy_job.md) for complete job description and requirements.
+See [holy_job.md](job_description.md) for complete job description and requirements.
 
 ---
 
