@@ -74,3 +74,70 @@ POST /query/natural-language
 - **Tracing**: Spring Sleuth → Zipkin  
 - **Logs**: Structured JSON → ELK Stack
 - **Alerts**: Custom SLA violations, circuit breaker states 
+
+---
+
+## ⚙️ Technology Stack
+
+### Backend Framework
+- Spring Boot 3.2+
+- Spring WebFlux (non-blocking I/O for high throughput)
+- Spring Cloud Stream (Kafka integration with backpressure)
+- Spring Data JPA + R2DBC (reactive database access)
+
+### Stream Processing
+- Apache Kafka (event streaming)
+- Kafka Streams (complex event processing, exactly-once semantics)
+- Debezium (CDC, schema evolution)
+- Apache Avro + Schema Registry (compatibility without breaking changes)
+
+### Data Storage
+- Source Databases: PostgreSQL, MySQL, MongoDB, H2
+- Apache Iceberg (data lake with time travel, schema evolution)
+- MinIO (S3-compatible object storage)
+- Iceberg REST Catalog (metadata management)
+
+### Testing & Quality
+- Testcontainers (realistic integration testing)
+- Spring Boot Test
+- Performance testing (100K+ events/sec simulation)
+
+### Observability
+- Micrometer + Prometheus (CDC pipeline health)
+- Spring Boot Actuator (health checks, circuit breaker monitoring)
+- Zipkin (distributed tracing)
+- Structured logging (JSON for aggregation)
+
+### Infrastructure
+- Docker + Docker Compose (local development)
+- Kubernetes (production-like deployment)
+- Helm Charts (repeatable deployment automation)
+
+---
+
+## 📊 Technology Justifications
+
+### Why Debezium over Custom CDC?
+- Proven at enterprise scale; mature connector ecosystem
+- Schema evolution support prevents breaking downstream systems
+- Community support lowers maintenance overhead
+
+### Why Circuit Breakers?
+- At Apple scale, cascading failures are catastrophic
+- Graceful degradation protects revenue-critical services
+- Automatic recovery reduces on-call burden
+
+### Why Avro + Schema Registry?
+- Apple’s biggest operational pain point is schema evolution
+- Backward/forward compatibility prevents breaking changes
+- Performance benefits over JSON at high volume
+
+### Why Event Filtering?
+- Not all database changes matter for downstream systems
+- Intelligent filtering saves compute at scale
+- Business logic separation from technical change detection
+
+### Why Spring WebFlux?
+- Non-blocking I/O essential for >100K events/sec
+- Backpressure prevents memory issues
+- Reactive Streams compatibility with Kafka

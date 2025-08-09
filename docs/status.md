@@ -9,7 +9,7 @@
 ## 🎯 Current State
 
 ### ✅ **COMPLETED**
-- [x] Documentation structure created (checklist, ddd, system-design, tech-stack)
+- [x] Documentation structure created (roadmap, ddd, system-design)
 - [x] Problem definition and scope established  
 - [x] Technical stack decisions documented
 - [x] MicroApple ecosystem defined (4 services, volume targets)
@@ -24,7 +24,6 @@
 - [ ] Package sub-modules creation (cdc, streaming, datalake, testenvironment, nlp)
 
 ### ⏳ **NEXT UP**
-- [ ] ADR-002: Database Configuration Strategy  
 - [ ] Set up Docker Compose for local development (4 databases)
 - [ ] Create basic CDC service structure
 - [ ] Add Spring Boot actuator and health checks
@@ -34,7 +33,7 @@
 ## 🏗️ Implementation Roadmap
 
 ### **Phase 1: Foundation** (Week 1)
-- [ ] **ADR-001**: Project Foundation (Maven, Spring Boot 3.2+, basic structure)
+- [ ] **ADR-001**: Project Foundation (Gradle, Spring Boot 3.2+, basic structure)
 - [ ] **ADR-002**: Database Setup (PostgreSQL, MySQL, MongoDB, H2 configuration)
 - [ ] **ADR-003**: CDC Configuration (Debezium connectors)
 - [ ] **Sprint Goal**: Basic CDC pipeline from one database working
@@ -55,7 +54,7 @@
 - [ ] **ADR-010**: Test Environment Automation
 - [ ] **ADR-011**: NLP Query Interface  
 - [ ] **ADR-012**: Performance Optimization & Circuit Breakers
-- [ ] **Sprint Goal**: Interview-ready demo with "holy shit" features
+- [ ] **Sprint Goal**: Interview-ready system with "holy shit" features
 
 ---
 
@@ -68,7 +67,6 @@
 4. Validate toolchain setup (Java, Maven, Docker)
 
 ### **Open Decisions Needed**
-- [ ] Maven vs Gradle? (Lean towards Maven for Apple compatibility)
 - [ ] Local development vs Testcontainers first? (Start local, add Testcontainers)
 - [ ] Monorepo vs multi-service structure? (Start monorepo, extract later)
 
@@ -80,14 +78,14 @@
 
 ## 🔗 Quick Reference Links
 
-- **[The Job Checklist](checklist.md)** - Complete feature roadmap
-- **[Technical Stack](tech-stack.md)** - Technology decisions & rationale
+- **[Roadmap](roadmap.md)** - Complete feature roadmap
+- **[System Design](system-design.md#technology-stack)** - Technology decisions & rationale
 - **[System Design](system-design.md)** - Architecture overview
-- **[Domain Model](ddd.md)** - Business logic structure
+- **[Domain Model](ddd.md#cdc-pipeline-blueprint)** - CDC pipeline blueprint
 
 ### **ADR Index** (Will grow as we progress)
 - ADR-001: **[COMPLETED]** Project Foundation & Build System ✅
-- ADR-002: *[NEXT]* Database Configuration Strategy
+- ADR-002: **[ACCEPTED]** Database Configuration Strategy ✅
 - ADR-003: *[Planned]* CDC Configuration Strategy
 
 ---

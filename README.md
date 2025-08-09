@@ -1,18 +1,18 @@
-# Apple Interview Prep - Staff Software Engineer
+# MicroApple - Change data capture
 
-This repository contains preparation materials and practice implementations for the **Staff Software Engineer - ASE Content Architecture Team** role at Apple.
+This repository contains the MicroApple system and documentation aligned to Apple's **ASE Content Architecture Team** context.
 
 ## 🎯 The Mission
 
-Build **MicroApple** - a Spring-based demo that shows Apple *"I Speak Your Language"* by demonstrating deep understanding of their exact technical challenges, trade-offs, and solution patterns.
+Build **MicroApple** - a Spring-based system that shows Apple *"I Speak Your Language"* by demonstrating deep understanding of their exact technical challenges, trade-offs, and solution patterns.
 
 ## 📊 **[📍 PROJECT STATUS](docs/status.md) ← START HERE**
 
 **Quick Status Check**: See current progress, next tasks, and where to pick up development with minimal friction.
 
-## 📋 The Job Checklist
+## 📋 The Roadmap
 
-**→ [Complete The Checklist](docs/checklist.md) ← Your roadmap to landing the Staff Software Engineer role**
+**→ [View The Roadmap](docs/roadmap.md) ← Execution plan for the MicroApple system**
 
 The checklist contains everything you need to master to ace the Apple interview:
 - ✅ Multi-Database CDC Mastery (Debezium, Schema Evolution, Backpressure)
@@ -25,16 +25,18 @@ The checklist contains everything you need to master to ace the Apple interview:
 
 ### 📋 Project Documentation
 - **[📊 Project Status](docs/status.md)** - Current state, progress tracking, next steps
-- **[📋 The Job Checklist](docs/checklist.md)** - Complete roadmap and success criteria
+- **[🗺️ Roadmap](docs/roadmap.md)** - Complete roadmap and success criteria
 - **[🏗️ System Design](docs/system-design.md)** - Architecture and component interactions
-- **[⚙️ Technology Stack](docs/tech-stack.md)** - Technical choices and rationale  
+- **[⚙️ Technology Stack](docs/system-design.md#technology-stack)** - Technical choices and rationale  
 - **[🎯 Domain-Driven Design](docs/ddd.md)** - Domain modeling and bounded contexts
-- **[🔗 Service Blueprint](docs/service-blueprint.md)** - Service interactions and deployment
+- **[🔗 CDC Pipeline Blueprint](docs/ddd.md#cdc-pipeline-blueprint)** - Service interactions and deployment
+- **[🧭 System Timeline](docs/timeline.md)** - Sequenced milestones with ADRs
+- **[🧪 Timeline Tests](docs/timeline-test.md)** - Cross-cutting test plan
 
 ### 📄 Reference Materials
-See [holy_job.md](job_description.md) for complete job description and requirements.
+See [Business Goal](docs/business-goal.md) for objectives and scope.
 
 ---
 
 **Target Role**: Staff Software Engineer - ASE Content Architecture Team  
-**Prep Strategy**: Build production-ready technical demos that solve Apple's exact problems 
+**Strategy**: Build production-ready systems that solve Apple's exact problems 

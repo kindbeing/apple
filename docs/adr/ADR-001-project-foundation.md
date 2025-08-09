@@ -1,14 +1,14 @@
-`# ADR-001: Project Foundation & Build System
+# ADR-001: Project Foundation & Build System
 
 **Date**: 2024-12-28  
 **Status**: Accepted  
-**Context**: Apple Staff SWE Interview Prep - MicroApple Demo
+**Context**: MicroApple System aligned to Apple ASE Content Architecture Team
 
 ---
 
 ## Context
 
-We need to establish foundational technology choices for **MicroApple** - a production-ready CDC demo that showcases Apple-scale streaming architecture. This demo must handle 100K+ events/sec and demonstrate deep understanding of Apple's operational challenges.
+We need to establish foundational technology choices for **MicroApple** — a production-ready CDC system that showcases Apple-scale streaming architecture. This system must handle 100K+ events/sec and demonstrate deep understanding of Apple's operational challenges.
 
 ## Decision
 
@@ -60,7 +60,7 @@ com.ncode.microapple
 ### 🔄 Mitigation
 - Comprehensive README with setup instructions
 - ADR documentation for complex decisions
-- Demo scripts for each major component
+- Timeline entries for each major component
 
 ## Next Steps
 1. Initialize Spring Boot project with reactive web starter

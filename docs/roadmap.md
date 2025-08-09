@@ -1,6 +1,6 @@
-# The Job Checklist ✅
+# MicroApple Roadmap ✅
 
-**Mission**: Build MicroApple - A Spring-based demo that shows Apple "I Speak Your Language"
+**Mission**: Build MicroApple - A Spring-based system that shows Apple "I Speak Your Language"
 
 **Goal**: Demonstrate deep understanding of Apple's exact technical challenges, trade-offs, and solution patterns.
 
@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Core Competencies Checklist
+## 🎯 Core Competencies
 
 ### ✅ Multi-Database CDC Mastery
 - [ ] **Debezium Configuration**: Set up CDC for PostgreSQL, MySQL, MongoDB, H2
@@ -117,7 +117,7 @@
 ## 🎯 Success Criteria
 
 **Technical Demonstration:**
-- [ ] Live demo of CDC pipeline processing 50K+ events/sec
+- [ ] Live system run of CDC pipeline processing 50K+ events/sec
 - [ ] Schema evolution without breaking downstream services
 - [ ] Test environment provisioned in <2 minutes
 - [ ] Natural language query returning accurate results

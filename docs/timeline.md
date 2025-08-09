@@ -1,4 +1,4 @@
-# 🚀 Apache Iceberg + CDC Demo Guide
+# 🚀 MicroApple System Timeline
 
 ## ✅ **Complete Working Pipeline**
 
@@ -14,7 +14,7 @@
 
 ---
 
-## 🎯 **Demo Script**
+## 🎯 **Timeline Script**
 
 ### **Step 1: Setup Infrastructure**
 ```bash
@@ -137,7 +137,7 @@ GET http://localhost:8090/api/datalake/timestamp/minutes-ago/5
 
 ### **Scale Characteristics**
 
-**Current Demo**: Handles 1000s of events/second on laptop
+**Current System**: Handles 1000s of events/second on laptop
 **Apple Scale**: 
 - Horizontal partitioning by user_id hash
 - Multiple Iceberg catalogs for different regions
@@ -178,27 +178,7 @@ public List<Record> queryAtTimestamp(Instant timestamp) {
 
 ---
 
-## 🎯 **Next Steps**
-
-### **Full Iceberg Writing** (15 minutes)
-- Implement DataFile creation
-- Add proper Parquet writing
-- Enable actual time-travel queries
-
-### **Multi-Database Extension** (30 minutes)
-- Add Oracle CDC connector
-- Add MongoDB change streams
-- Unified Iceberg schema across sources
-
-### **Advanced Features** (1 hour)
-- Partition evolution
-- Compaction strategies  
-- Query optimization
-- Cross-table joins
-
----
-
-## 🚀 **Demo Flow Summary**
+## 🚀 **Timeline Flow Summary**
 
 1. **Initialize Iceberg table** ✅
 2. **Start monitoring** (Kafka UI) ✅

@@ -2,7 +2,7 @@
 
 **Date**: 2024-12-28  
 **Status**: Accepted  
-**Context**: Apple Staff SWE Interview Prep - MicroApple CDC Demo
+**Context**: MicroApple System — CDC database configuration
 
 ---
 
