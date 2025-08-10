@@ -1,8 +1,8 @@
 # 📊 MicroApple Project Status
 
-**Last Updated**: `2024-12-28`  
-**Current Phase**: `Foundation Complete - Ready for CDC Implementation`  
-**Next Session Goal**: `ADR-002 Database Setup & Basic CDC Pipeline`
+**Last Updated**: `2025-08-10`  
+**Current Phase**: `AppStore CRUD + CDC validation in place; Iceberg sink configured (write path stubbed)`  
+**Next Session Goal**: `Implement Iceberg write path + add Actuator/metrics`
 
 ---
 
@@ -19,18 +19,23 @@
 - [x] **Gradle 8.14.3 with auto-provisioning toolchains** ✨
 - [x] **Package structure: com.ncode.microapple** ✨
 - [x] **Build verification: `./gradlew bootRun` working** ✨
+- [x] AppStore CRUD API (`AppPurchaseController`) implemented
+- [x] Repository tests green (`AppPurchaseRepositoryTest`)
+- [x] CDC integration test scaffold (`CdcIntegrationTest`) polling Debezium topic
+- [x] Iceberg REST Catalog configured (`IcebergConfig`); table init endpoint exposed
 
 ### 🔄 **IN PROGRESS**
-- [ ] Package sub-modules creation (cdc, streaming, datalake, testenvironment, nlp)
+- [ ] CDC → Iceberg sink: parse Debezium event and persist (service stub in place)
+- [ ] Docker Compose environment alignment (Postgres, Kafka, Debezium, MinIO, REST catalog)
 
 ### ⏳ **NEXT UP**
-- [ ] Set up Docker Compose for local development (4 databases)
-- [ ] Create basic CDC service structure
-- [ ] Add Spring Boot actuator and health checks
+- [ ] Implement Iceberg write path (Parquet writer + commit)
+- [ ] Add Spring Boot Actuator + Prometheus metrics
+- [ ] Wire Docker Compose end-to-end and validate CDC → Kafka → Iceberg
 
 ---
 
-## 🏗️ Implementation Roadmap
+## 🏗️ Potential ADR Roadmap
 
 ### **Phase 1: Foundation** (Week 1)
 - [ ] **ADR-001**: Project Foundation (Gradle, Spring Boot 3.2+, basic structure)
@@ -58,47 +63,20 @@
 
 ---
 
-## 📋 Current Focus
+## ▶️ Next Steps (Execution)
 
-### **Immediate Tasks** (Next Session)
-1. Update `.cursor/rules/.project-config.mdc` for this project
-2. Create ADR-001: Project Foundation decisions
-3. Initialize Spring Boot project with proper structure
-4. Validate toolchain setup (Java, Maven, Docker)
+1) Implement Iceberg write path
+- Add Parquet writer and table commit in `IcebergService.writeRecord(...)`
+- Validate with a small batch via `docs/timeline-test.md`
 
-### **Open Decisions Needed**
-- [ ] Local development vs Testcontainers first? (Start local, add Testcontainers)
-- [ ] Monorepo vs multi-service structure? (Start monorepo, extract later)
+2) Enable observability
+- Add `spring-boot-starter-actuator`; expose health, metrics
+- Register Micrometer Prometheus registry
 
-### **Blockers/Risks**
-- None currently identified
-- Ready to begin implementation
+3) Wire local stack
+- Ensure Docker Compose brings up Postgres, Kafka, Debezium, MinIO, REST Catalog
+- Verify connector status and topic messages; run `CdcIntegrationTest`
 
----
-
-## 🔗 Quick Reference Links
-
-- **[Roadmap](roadmap.md)** - Complete feature roadmap
-- **[System Design](system-design.md#technology-stack)** - Technology decisions & rationale
-- **[System Design](system-design.md)** - Architecture overview
-- **[Domain Model](ddd.md#cdc-pipeline-blueprint)** - CDC pipeline blueprint
-
-### **ADR Index** (Will grow as we progress)
-- ADR-001: **[COMPLETED]** Project Foundation & Build System ✅
-- ADR-002: **[ACCEPTED]** Database Configuration Strategy ✅
-- ADR-003: *[Planned]* CDC Configuration Strategy
-
----
-
-## 💡 Session Notes
-
-### **Key Insights from Setup Phase**
-- Documentation-first approach proving valuable for alignment
-- MicroApple ecosystem clearly scoped (4 services, realistic complexity)
-- Technical stack closely mirrors Apple's actual choices
-- Interview impact strategy is well-defined
-
-### **Next Session Prep**
-- Have Java 17+, Maven, Docker ready
-- Review Spring Boot 3.2+ reactive features
-- Familiarize with Debezium configuration patterns 
+4) Stabilize CDC → Iceberg
+- Add error metrics for DLQ candidates in `CdcEventListener`
+- Backpressure handling review (listener concurrency, retry policy)

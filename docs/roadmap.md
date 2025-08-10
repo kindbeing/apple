@@ -1,134 +1,147 @@
-# MicroApple Roadmap ✅
+# MicroApple Implementation Roadmap
 
-**Mission**: Build MicroApple - A Spring-based system that shows Apple "I Speak Your Language"
+**Mission**: Build a Spring-based Change Data Capture platform demonstrating enterprise-grade patterns across multiple database paradigms.
 
-**Goal**: Demonstrate deep understanding of Apple's exact technical challenges, trade-offs, and solution patterns.
-
-**Interview Impact**: *"This person understands our problems better than our current engineers"*
+**Technical Goal**: Create a working system that ingests data from 5 different database types, processes events through bounded contexts, and stores them in Apache Iceberg format with time-travel capabilities.
 
 ---
 
-## 🎯 Core Competencies
+## 📋 Implementation Phases
 
-### ✅ Multi-Database CDC Mastery
-- [ ] **Debezium Configuration**: Set up CDC for PostgreSQL, MySQL, MongoDB, H2
-- [ ] **Schema Evolution Handling**: Implement graceful schema change management
-- [ ] **Event Filtering Logic**: Build Apple-style intelligent filtering (not all changes matter)
-- [ ] **Backpressure Management**: Handle high-volume streams without data loss
-- [ ] **Circuit Breaker Patterns**: Protect downstream services from cascading failures
+### **Phase 1: SQL Foundation (1 week)**
+- [x] **Spring Boot 3.5.4**: Enterprise-grade framework setup
+- [x] **Java 21 LTS + Corretto**: Production toolchain
+- [x] **Gradle 8.14.3**: Build system with toolchain management
+- [x] **Package Structure**: `com.ncode.microapple` base structure
+- [x] **ADR-001 Documentation**: Architectural decisions documented
+- [x] **DDD Documentation**: Domain design with bounded contexts
+- [ ] **PostgreSQL Setup**: Sample AppStore data and CDC connector
+- [ ] **Basic Schema Detection**: Auto-discover PostgreSQL schema
+- [ ] **Kafka Infrastructure**: Message streaming setup
+- [ ] **Basic Event Processing**: Filter and route PostgreSQL events
 
-### ✅ **Foundation & Build System** *(COMPLETED)* 🎯
-- [x] **Spring Boot 3.5.4**: Enterprise-grade framework with reactive capabilities
-- [x] **Java 21 LTS + Corretto**: Production-proven, auto-provisioned toolchain
-- [x] **Gradle 8.14.3**: Modern build system with toolchain management
-- [x] **Package Structure**: `com.ncode.microapple` with planned sub-modules
-- [x] **ADR-001 Documentation**: Architectural decisions captured with rationale
-
-### ✅ Apple-Scale Streaming Architecture  
-- [ ] **Kafka Streams Topology**: Build complex event processing pipelines
-- [ ] **Avro Schema Registry**: Implement schema evolution with compatibility checks
-- [ ] **Event Routing Intelligence**: Route events based on business priority
-- [ ] **Batch Processing Optimization**: Implement Apple's batching patterns
-- [ ] **Rate Limiting & Throttling**: Protect system resources under load
-
-### ✅ Data Lake Integration (Apache Iceberg)
-- [ ] **Iceberg Table Management**: Create, evolve, and query Iceberg tables
-- [ ] **REST Catalog Integration**: Connect to Iceberg via REST API
-- [ ] **Time Travel Queries**: Implement historical data access patterns
-- [ ] **Schema Evolution**: Handle table schema changes gracefully
-- [ ] **Partition Management**: Optimize data layout for query performance
-
-### ✅ Test Environment Automation
-- [ ] **Containerized Database Provisioning**: Auto-provision isolated test DBs
-- [ ] **Test Data Anonymization**: Implement privacy-preserving data masking
-- [ ] **Environment Lifecycle API**: Create/destroy test environments on-demand
-- [ ] **Data Criteria Filtering**: Load specific datasets based on test requirements
-- [ ] **SLA Compliance**: 5-minute max provisioning time
-
-### ✅ Observability & Reliability
-- [ ] **Prometheus Metrics**: Custom metrics for CDC pipeline health
-- [ ] **Distributed Tracing**: Track events across service boundaries  
-- [ ] **Circuit Breaker Monitoring**: Monitor and alert on system degradation
-- [ ] **Performance Testing**: Load test at Apple-like scale (10M events/sec simulation)
-- [ ] **Chaos Engineering**: Implement failure injection and recovery validation
+**Milestone**: PostgreSQL CDC pipeline working
 
 ---
 
-## 🏗️ The MicroApple Ecosystem
+### **Phase 2: Iceberg Integration (1 week)**
+- [ ] **Apache Iceberg Setup**: REST catalog configuration
+- [ ] **Basic Parquet Writing**: Store PostgreSQL events
+- [ ] **Time-Travel Queries**: Historical data access
+- [ ] **Basic Observability**: Health checks and essential metrics
 
-### ✅ Service Simulation (Realistic Apple Complexity)
-- [ ] **AppStore Service** (PostgreSQL): app_purchases, user_reviews, developer_accounts
-- [ ] **iCloud Service** (MySQL): storage_usage, sync_events, subscription_changes  
-- [ ] **Music Service** (MongoDB): playlist_changes, user_preferences, play_events
-- [ ] **Device Service** (H2): device_registrations, os_update_events
-
-### ✅ Volume Simulation Targets
-- [ ] **Extreme Volume**: sync_events, play_events (>1M events/sec simulation)
-- [ ] **High Volume**: app_purchases, os_update_events (>100K events/sec)
-- [ ] **Medium Volume**: playlist_changes, device_registrations (>10K events/sec)
-- [ ] **Low Volume**: user_preferences, subscription_changes (<1K events/sec)
+**Milestone**: PostgreSQL → Iceberg with time-travel queries
 
 ---
 
-## 🚀 "Holy Shit" Moment Features
+### **Phase 3: Oracle Integration (1 week)**
+- [ ] **Oracle Setup**: Enterprise subscription data and CDC connector
+- [ ] **Unified Schema**: Canonical format for SQL databases
+- [ ] **Schema Compatibility**: Evolution checking between PostgreSQL/Oracle
 
-### ✅ ML-Powered Intelligence
-- [ ] **Automated Metadata Generation**: ML tags for datasets
-- [ ] **Ownership Inference**: Predict data owners based on patterns
-- [ ] **Data Quality Scoring**: Automated data profiling and scoring
-- [ ] **Anomaly Detection**: ML-based data quality monitoring
-
-### ✅ Natural Language Interface  
-- [ ] **NLP Query Parser**: "Show me users who bought apps after push notifications"
-- [ ] **SQL Generation**: Convert natural language to optimized queries
-- [ ] **Query Optimization**: Automatic query performance tuning
-- [ ] **Results Formatting**: Human-readable query results
-
-### ✅ Advanced Operational Features
-- [ ] **Schema Compatibility Checker**: Prevent breaking changes automatically
-- [ ] **Gradual Rollout System**: Canary deployments for schema changes
-- [ ] **Dependency Graph**: Track downstream service dependencies
-- [ ] **Performance Regression Detection**: Automatic SLA violation alerts
+**Milestone**: Dual SQL database CDC with unified schema
 
 ---
 
-## 💪 Interview Talking Points Prep
+### **Phase 4: Document Database (1 week)**
+- [ ] **MongoDB Integration**: Music service data and connector
+- [ ] **Document Schema Handling**: Flexible schema evolution
+- [ ] **Cross-Paradigm Schema**: Extend unified schema for documents
 
-### ✅ Architecture Decision Rationale
-- [ ] **"Why Debezium over custom CDC?"** - Proven, maintainable, Apple values stability
-- [ ] **"Why Circuit Breakers?"** - At Apple scale, cascading failures are catastrophic  
-- [ ] **"Why Avro + Schema Registry?"** - Schema evolution is Apple's biggest operational pain
-- [ ] **"Why Event Filtering?"** - Not all changes matter, intelligent filtering saves resources
+**Milestone**: SQL + Document paradigms unified
 
-### ✅ Scale Discussion Preparation
-- [ ] **Current Performance**: "Handles 100K events/sec on laptop"
-- [ ] **Apple Scale Strategy**: "10M events/sec needs horizontal sharding by user_id hash"
-- [ ] **Linear Scaling**: "Backpressure and batching patterns scale with partition count"
-- [ ] **Zero Downtime**: "Schema evolution prevents deployment freezes"
+---
 
-### ✅ Production Readiness Answers
-- [ ] **"What's missing for production?"** - Multi-region replication, topic compaction
-- [ ] **"How would you monitor this?"** - ML anomaly detection, data quality monitoring
-- [ ] **"Disaster recovery strategy?"** - Cross-region backup, automated failover
-- [ ] **"Security considerations?"** - Data anonymization, access controls, audit trails
+### **Phase 5: Wide-Column Database (1 week)**
+- [ ] **Cassandra Integration**: Device telemetry data and connector
+- [ ] **Time-Series Patterns**: Handle high-volume device events
+- [ ] **Multi-Paradigm Events**: Route based on database type
+
+**Milestone**: SQL + Document + Wide-Column unified
+
+---
+
+### **Phase 6: Graph Database (1 week)**
+- [ ] **Neo4j Integration**: Social connections data and connector
+- [ ] **Graph Event Handling**: Relationship changes in unified schema
+- [ ] **Complete Pipeline**: All 5 paradigms → Iceberg
+
+**Milestone**: All 5 database paradigms streaming to Iceberg
+
+---
+
+### **Phase 7: Enterprise Patterns (1 week)**
+- [ ] **Circuit Breaker Patterns**: Downstream protection
+- [ ] **Exactly-Once Delivery**: Duplicate prevention
+- [ ] **Event Enrichment**: Metadata and lineage tracking
+- [ ] **Privacy Classification**: Automatic PII detection
+
+**Milestone**: Production-ready patterns demonstrated
 
 ---
 
 ## 🎯 Success Criteria
 
-**Technical Demonstration:**
-- [ ] Live system run of CDC pipeline processing 50K+ events/sec
-- [ ] Schema evolution without breaking downstream services
-- [ ] Test environment provisioned in <2 minutes
-- [ ] Natural language query returning accurate results
-- [ ] Circuit breaker activation and recovery under load
+### **Functional Requirements**
+- [ ] Successfully ingest changes from all 5 database types
+- [ ] Maintain unified schema across different paradigms
+- [ ] Handle schema evolution without breaking downstream consumers
+- [ ] Provide time-travel queries across historical snapshots
 
-**Interview Readiness:**
-- [ ] Can explain every architectural decision with Apple context
-- [ ] Can discuss scaling strategies for 10M+ events/sec  
-- [ ] Can walk through failure scenarios and recovery patterns
-- [ ] Can demonstrate deep understanding of Apple's operational challenges
+### **Performance Requirements**
+- [ ] Handle sustained load per database:
+    - Cassandra: >100K events/sec
+    - MongoDB: >50K events/sec
+    - PostgreSQL: >10K events/sec
+    - Neo4j: >5K events/sec
+    - Oracle: >1K events/sec
+- [ ] End-to-end latency < 100ms at 95th percentile
+- [ ] System availability > 99.9% during testing
+- [ ] Recovery time < 30 seconds after failure
 
 ---
 
-*Complete this checklist = Land the at Apple* 🍎 
+## 🛠️ Technology Stack
+
+### **Core Platform**
+- **Application**: Spring Boot 3.5.4, Java 21 LTS
+- **Build**: Gradle 8.14.3 with dependency management
+- **CDC**: Debezium connectors for all database types
+- **Messaging**: Apache Kafka with Avro serialization
+- **Schema**: Confluent Schema Registry
+
+### **Data Storage**
+- **Data Lake**: Apache Iceberg with REST catalog
+- **File Format**: Apache Parquet with compression
+- **Query Engine**: Spark/Trino for time-travel queries
+
+### **Databases**
+- **PostgreSQL**: Transactional data (App Store)
+- **Oracle**: Enterprise data (Billing, Compliance)
+- **MongoDB**: Document data (Music, Preferences)
+- **Cassandra**: Time-series data (Device Telemetry)
+- **Neo4j**: Graph data (Social Connections)
+
+---
+
+## 📊 Testing Strategy
+
+### **Unit Testing**
+- [ ] Connector logic and configuration
+- [ ] Schema management and evolution
+- [ ] Event processing and filtering
+- [ ] Iceberg integration components
+
+### **Integration Testing**
+- [ ] End-to-end CDC pipeline testing
+- [ ] Cross-paradigm schema consistency
+- [ ] Failure recovery scenarios
+- [ ] Performance under load
+
+### **System Testing**
+- [ ] Multi-database concurrent processing
+- [ ] Schema evolution impact testing
+- [ ] Chaos engineering experiments
+- [ ] Long-running stability tests
+
+---

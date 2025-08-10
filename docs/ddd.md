@@ -1,142 +1,144 @@
-# Domain-Driven Design
+# MicroApple DDD: Enterprise Change Data Capture Platform
 
-## 🏗️ MicroApple Domain Model
+## 🎯 Domain Vision
 
-### Core Bounded Contexts
+**Mission**: Build a unified, enterprise-grade Change Data Capture platform that ingests, processes, and serves data changes from heterogeneous sources with guaranteed consistency, intelligent schema evolution, and ML-powered insights.
 
-#### 1. **AppStore Context** (PostgreSQL)
-```java
-// Domain Events
-AppPurchaseEvent, UserReviewEvent, DeveloperAccountEvent
+**Core Value Proposition**: Enable real-time data integration across any database technology while maintaining ACID guarantees, schema compatibility, and enterprise-grade observability.
 
-// Aggregates  
-Purchase(userId, appId, amount, timestamp)
-Review(userId, appId, rating, content, timestamp)
-Developer(developerId, accountStatus, apps[])
-```
-
-#### 2. **iCloud Context** (MySQL)  
-```java
-// Domain Events
-StorageUsageEvent, SyncEvent, SubscriptionChangeEvent
-
-// Aggregates
-StorageUsage(userId, bytesUsed, quotaLimit, timestamp)
-SyncEvent(userId, deviceId, dataType, syncStatus, timestamp) 
-Subscription(userId, plan, status, renewalDate)
-```
-
-#### 3. **Music Context** (MongoDB)
-```java
-// Domain Events
-PlaylistChangeEvent, UserPreferenceEvent, PlayEvent
-
-// Aggregates
-Playlist(userId, playlistId, tracks[], lastModified)
-UserPreference(userId, genres[], artists[], settings)
-PlayEvent(userId, trackId, deviceId, duration, timestamp)
-```
-
-#### 4. **Device Context** (H2)
-```java
-// Domain Events  
-DeviceRegistrationEvent, OSUpdateEvent
-
-// Aggregates
-Device(deviceId, userId, model, osVersion, registrationDate)
-OSUpdate(deviceId, fromVersion, toVersion, status, timestamp)
-```
-
-### Cross-Context Integration
-
-#### **CDC Event Router**
-- Routes events based on business priority
-- Filters irrelevant changes (not all data mutations matter)
-- Applies Apple-style event enrichment
-
-#### **Data Lake Unified Schema**
-```sql
--- Iceberg table structure
-CREATE TABLE unified_events (
-  event_type STRING,
-  source_context STRING,
-  user_id BIGINT,
-  event_data JSON,
-  event_timestamp TIMESTAMP,
-  processed_timestamp TIMESTAMP
-) PARTITIONED BY (event_type, source_context, DAY(event_timestamp));
-```
-
-### Volume-Based Domain Rules
-- **Extreme Volume** (>1M/sec): Batch processing, async handling
-- **High Volume** (>100K/sec): Circuit breakers, rate limiting  
-- **Medium/Low Volume** (<10K/sec): Real-time processing, immediate consistency 
+**Strategic Goals**:
+- **Unified Data Access**: Single interface for PostgreSQL, Oracle, MongoDB, Cassandra, Neo4j
+- **Zero-Downtime Evolution**: Schema changes without service interruption
+- **Enterprise Reliability**: 99.99% uptime with automatic failover and recovery
+- **Privacy-First Operations**: Differential privacy and on-device processing capabilities
+- **Global Scale**: Handle billions of users across multiple regions with local compliance
 
 ---
 
-## 🔗 CDC Pipeline Blueprint
+## 🗣️ Ubiquitous Language
 
-### Phase 1: AppStore Service CDC Pipeline
-```
-┌─────────────────┐    ┌──────────────┐    ┌─────────────┐    ┌─────────────┐
-│  Spring Boot    │───▶│ PostgreSQL   │───▶│  Debezium   │───▶│    Kafka    │
-│  Application    │    │   Database   │    │  Connect    │    │   Broker    │
-│                 │    │              │    │             │    │             │
-│ AppPurchase     │    │ app_purchases│    │ CDC Events  │    │ Topic:      │
-│ Entity/Repo     │    │ (WAL=logical)│    │ Processor   │    │ microapple- │
-│                 │    │              │    │             │    │ postgres... │
-└─────────────────┘    └──────────────┘    └─────────────┘    └─────────────┘
-     :8080                  :5432               :8083             :9092
-```
+### **Core Concepts**
+- **Data Source**: Any system capable of producing change events (databases, Apple services)
+- **Change Stream**: Ordered sequence of modification events from a single data source
+- **Schema Evolution**: The process of adapting to structural changes in data sources (API evolution)
+- **Unified Schema**: Canonical representation that abstracts source-specific schemas
+- **Change Event**: Individual modification record (insert/update/delete) with metadata
+- **Event Routing**: Intelligent distribution of events based on content and priority
+- **Iceberg Snapshot**: Point-in-time view of data enabling time travel queries
+- **Privacy Budget**: Allocation for differential privacy operations to protect user data
 
-### Component Details (Phase 1)
-- Spring Boot App: AppStore simulator; JPA/Hibernate; Actuator health
-- PostgreSQL: WAL=logical; table `app_purchases`
-- Debezium: `microapple-postgres-connector`; monitors `public.app_purchases`
-- Kafka: topic `microapple-postgres.public.app_purchases`; Debezium JSON
-
-### Data Flow Sequence
-1. Write purchase via repository
-2. PostgreSQL WAL records change
-3. Debezium reads WAL via replication slot
-4. Event emitted to Kafka
-
-### Sample CDC Event
-```json
-{
-  "before": null,
-  "after": {
-    "id": 123,
-    "user_id": "user456",
-    "app_id": "com.apple.pages",
-    "price": "AMc=",
-    "transaction_id": "txn-789",
-    "purchase_date": 1754260138301609
-  },
-  "source": {
-    "connector": "postgresql",
-    "name": "microapple-postgres",
-    "schema": "public",
-    "table": "app_purchases"
-  },
-  "op": "c",
-  "ts_ms": 1754260138764
-}
-```
+### **Operational Terms**
+- **Connector Lifecycle**: Start → Connect → Snapshot → Stream → Stop states
+- **Exactly-Once Delivery**: Guarantee that each change event is processed exactly one time
+- **Circuit Breaker**: Protective mechanism that fails fast when downstream systems are unhealthy
+- **Offset Checkpoint**: Durable marker of processing progress for recovery
 
 ---
 
-## 🧪 Verification & Testing
+## 🏗️ Bounded Contexts
 
-### Repository Test (AppPurchaseRepositoryTest)
-- Verifies data persistence to PostgreSQL
+### **1. Change Detection Context**
+**Responsibility**: Establish connections, detect changes, manage connector lifecycle
 
-### CDC Integration Test (CdcIntegrationTest)
-- Inserts purchase → polls Kafka topic → asserts event contents
+**Core Events**:
+- `DataSourceConnected` / `DataSourceDisconnected`
+- `ConnectorStarted` / `ConnectorStopped` / `ConnectorFailed`
+- `RowChanged` - Core change detection event
+- `AppStorePurchaseDetected` - SQL databases (PostgreSQL, Oracle)
+- `MusicStreamingEventCaptured` - Document database (MongoDB)
+- `DeviceRegistrationLogged` - Wide-column database (Cassandra)
+- `SocialGraphConnectionMade` - Graph database (Neo4j)
+- `OffsetCheckpointed` / `OffsetRewound`
+- `BackpressureApplied` / `BackpressureReleased`
 
-### How to Run
-- See `docs/timeline-test.md` for end-to-end steps and HTTP requests
+**Key Aggregates**: DataSourceConnector, ChangeStream, SourceOffset
+
+**Domain Services**: ConnectorLifecycleService, BackpressureManager
 
 ---
 
-For infrastructure, observability, and technology choices, see `docs/system-design.md#technology-stack` and `docs/system-design.md#observability-stack`.
+### **2. Schema Management Context**
+**Responsibility**: Discover, validate, evolve, and unify schemas across sources
+
+**Core Events**:
+- `SchemaDetected` - Initial schema discovery
+- `SchemaEvolutionDetected` - Source schema changed
+- `SchemaCompatibilityChecked` / `SchemaCompatibilityFailed`
+- `UnifiedSchemaDerived` - Canonical schema for multi-DB consistency
+- `SchemaRegistryUpdated` - Centralized schema version published
+
+**Key Aggregates**: SourceSchema, UnifiedSchema, SchemaRegistry, CompatibilityRule
+
+**Domain Services**: SchemaEvolutionService, SchemaUnificationService, CompatibilityChecker
+
+---
+
+### **3. Event Processing Context**
+**Responsibility**: Filter, enrich, route, and deliver change events with privacy controls
+
+**Core Events**:
+- `ChangeEventFiltered` / `ChangeEventEnriched`
+- `RoutingDecisionMade` / `ChangeEventRouted`
+- `CircuitBreakerOpened` / `CircuitBreakerClosed`
+- `PrivacyClassificationApplied` - Apple privacy-first approach
+- `ExactlyOnceGuaranteeViolated` - Enterprise reliability pattern
+
+**Key Aggregates**: ChangeEvent, RoutingRule, CircuitBreaker, PrivacyPolicy
+
+**Domain Services**: EventFilterService, EventEnrichmentService, RoutingService, DeliveryGuaranteeService
+
+---
+
+### **4. Data Lake (Storage) Context**
+**Responsibility**: Persist, organize, and query data in Apache Iceberg format
+
+**Core Events**:
+- `IcebergTableCreated` / `IcebergWritePlanned`
+- `DataFilesCreated` / `ManifestCommitted`
+- `IcebergSnapshotCreated` - Enables time-travel queries
+- `CompactionScheduled` / `CompactionCompleted`
+- `QueryRequested` / `QueryExecuted` - Data access and analytics
+
+**Key Aggregates**: IcebergTable, WriteBatch, DataFile, TableSnapshot, QueryPlan
+
+**Domain Services**: IcebergWriteService, CompactionService, QueryOptimizer
+
+---
+
+## 🔄 Context Integration Patterns
+
+### **Event-Driven Integration**
+- **Domain Events**: Primary integration mechanism between contexts
+- **Event Store**: Durable log of all domain events for replay and recovery
+- **Saga Pattern**: Coordinate complex workflows (like schema evolution across all contexts)
+
+### **Data Consistency Patterns**
+- **Eventually Consistent**: Most cross-context operations (schema changes propagating)
+- **Strong Consistency**: Within aggregate boundaries (single Iceberg table writes)
+- **Compensating Actions**: Handle partial failures (rollback schema changes if downstream fails)
+
+### **Anti-Corruption Layers**
+- **Schema Translation**: Between PostgreSQL/Oracle/MongoDB/Cassandra/Neo4j and unified schema
+- **Protocol Adaptation**: Different database change log formats → standard events
+
+---
+
+## 🎯 Strategic Design Decisions
+
+### **Core Domain vs Supporting Domains**
+- **Core Domain**: Event Processing + Schema Management (competitive advantage for multi-DB integration)
+- **Supporting Domains**: Change Detection, Storage (leverage existing tools like Debezium, Iceberg)
+
+### **Context Boundaries**
+- **High Cohesion**: Related events and aggregates within contexts
+- **Loose Coupling**: Minimal dependencies between contexts
+- **Privacy by Design**: Privacy considerations embedded across all contexts
+
+### **Technology Alignment**
+- **Change Detection**: Debezium connectors for all 5 databases
+- **Event Processing**: Kafka Streams for real-time processing
+- **Storage**: Apache Iceberg + Parquet for analytics workloads
+- **Schema**: Confluent Schema Registry + Avro for evolution
+- **Privacy**: Differential Privacy libraries for Apple-scale compliance
+
+---
