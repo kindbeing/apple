@@ -27,10 +27,13 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'
 	
 	// Apache Iceberg dependencies (temporarily commented out for demo)
-	 implementation 'org.apache.iceberg:iceberg-core:1.4.3'
-	 implementation 'org.apache.iceberg:iceberg-api:1.4.3'
-	 implementation 'org.apache.iceberg:iceberg-data:1.4.3'
-	 implementation 'org.apache.iceberg:iceberg-aws:1.4.3'
+    	 implementation 'org.apache.iceberg:iceberg-core:1.4.3'
+    	 implementation 'org.apache.iceberg:iceberg-api:1.4.3'
+    	 implementation 'org.apache.iceberg:iceberg-data:1.4.3'
+    	 implementation 'org.apache.iceberg:iceberg-aws:1.4.3'
+        implementation 'org.apache.iceberg:iceberg-parquet:1.4.3'
+        implementation 'org.apache.parquet:parquet-hadoop:1.13.1'
+        implementation 'org.apache.parquet:parquet-avro:1.13.1'
 	
 	// AWS SDK for S3 compatibility with MinIO
 	implementation 'software.amazon.awssdk:s3:2.21.29'

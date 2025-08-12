@@ -190,3 +190,22 @@ public List<Record> queryAtTimestamp(Instant timestamp) {
 **Result**: Complete CDC → Iceberg pipeline demonstrating Apple-scale data architecture patterns with time-travel capabilities and schema evolution support.
 
 This showcases deep understanding of modern data lake architecture, real-time processing, and the operational challenges Apple faces with evolving data at massive scale.
+
+---
+
+## ✅ Verify Intelligence Endpoints
+
+After generating events:
+
+```http
+GET http://localhost:8090/api/datalake/stats/revenue-by-app
+GET http://localhost:8090/api/datalake/stats/count-by-user?userId=icebergDemo-1
+```
+
+Expected:
+- Non-zero totals for `com.apple.iceberg` in revenue map
+- Count > 0 for the specified `userId`
+
+If empty:
+- Check app logs for "Failed to write record to Iceberg". If region error, ensure `iceberg.s3.region=us-east-1` is set via config. Our app sets it in `IcebergConfig`.
+- List MinIO files to confirm writes (see `docs/debugger.md`).

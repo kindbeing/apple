@@ -2,6 +2,8 @@ package com.ncode.microapple.datalake.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.iceberg.DataFiles;
+import org.apache.iceberg.FileFormat;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.catalog.Catalog;
@@ -10,7 +12,8 @@ import org.apache.iceberg.data.GenericRecord;
 import org.apache.iceberg.data.IcebergGenerics;
 import org.apache.iceberg.data.Record;
 import org.apache.iceberg.expressions.Expressions;
-import org.apache.iceberg.io.CloseableIterable;
+import org.apache.iceberg.io.FileAppender;
+import org.apache.iceberg.io.OutputFile;
 import org.apache.iceberg.types.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +22,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class IcebergService {
@@ -135,18 +139,33 @@ public class IcebergService {
 
     private void writeRecord(Table table, Record record) {
         try {
-            // For now, just log - full Iceberg writing requires more complex setup
-            logger.info("Processing Iceberg record: id={}, user_id={}, transaction_id={}, operation={}", 
-                record.getField("id"), 
-                record.getField("user_id"), 
+            logger.info("Processing Iceberg record: id={}, user_id={}, transaction_id={}, operation={}",
+                record.getField("id"),
+                record.getField("user_id"),
                 record.getField("transaction_id"),
                 record.getField("cdc_operation"));
-            
-            // TODO: Implement DataFile creation and commit
-            // This would involve:
-            // 1. Creating a DataFile writer
-            // 2. Writing the record to a Parquet file
-            // 3. Committing the file to the table
+
+            String fileName = java.util.UUID.randomUUID() + ".parquet";
+            String dataLocation = table.locationProvider().newDataLocation(fileName);
+            OutputFile outputFile = table.io().newOutputFile(dataLocation);
+
+            try (FileAppender<Record> appender =
+                     org.apache.iceberg.parquet.Parquet.write(outputFile)
+                         .schema(table.schema())
+                         .createWriterFunc(org.apache.iceberg.data.parquet.GenericParquetWriter::buildWriter)
+                         .build()) {
+                appender.add(record);
+
+                var dataFile = DataFiles.builder(table.spec())
+                    .withPath(outputFile.location())
+                    .withFileSizeInBytes(appender.length())
+                    .withFormat(FileFormat.PARQUET)
+                    .withMetrics(appender.metrics())
+                    .build();
+
+                table.newAppend().appendFile(dataFile).commit();
+                logger.info("Committed Iceberg data file: {} ({} bytes)", outputFile.location(), appender.length());
+            }
                 
         } catch (Exception e) {
             logger.error("Failed to write record to Iceberg", e);
@@ -156,9 +175,15 @@ public class IcebergService {
 
     public List<Record> queryAtTimestamp(Instant timestamp) {
         try {
-            // For now, return empty list - will implement time travel later
-            logger.info("Would query table at timestamp: {}", timestamp);
-            return new ArrayList<>();
+            // Fallback to current snapshot (time travel wiring can be added later)
+            Table table = catalog.loadTable(TABLE_ID);
+            List<Record> results = new ArrayList<>();
+            try (var iterable = IcebergGenerics.read(table).build()) {
+                for (Record rec : iterable) {
+                    results.add(rec);
+                }
+            }
+            return results;
             
         } catch (Exception e) {
             logger.error("Failed to query table at timestamp {}", timestamp, e);
@@ -168,9 +193,14 @@ public class IcebergService {
 
     public List<Record> queryCurrentState() {
         try {
-            // For now, return empty list - will implement reading later
-            logger.info("Would query current table state");
-            return new ArrayList<>();
+            Table table = catalog.loadTable(TABLE_ID);
+            List<Record> results = new ArrayList<>();
+            try (var iterable = IcebergGenerics.read(table).build()) {
+                for (Record rec : iterable) {
+                    results.add(rec);
+                }
+            }
+            return results;
             
         } catch (Exception e) {
             logger.error("Failed to query current table state", e);
@@ -180,13 +210,54 @@ public class IcebergService {
 
     public List<Record> queryByTransactionId(String transactionId) {
         try {
-            // For now, return empty list - will implement reading later
-            logger.info("Would query by transaction_id: {}", transactionId);
-            return new ArrayList<>();
+            Table table = catalog.loadTable(TABLE_ID);
+            List<Record> results = new ArrayList<>();
+            try (var iterable = IcebergGenerics.read(table)
+                    .where(Expressions.equal("transaction_id", transactionId))
+                    .build()) {
+                for (Record rec : iterable) {
+                    results.add(rec);
+                }
+            }
+            return results;
             
         } catch (Exception e) {
             logger.error("Failed to query by transaction_id: {}", transactionId, e);
             throw new RuntimeException("Failed to query by transaction_id", e);
         }
+    }
+
+    public Map<String, BigDecimal> revenueByApp() {
+        Table table = catalog.loadTable(TABLE_ID);
+        Map<String, BigDecimal> totals = new HashMap<>();
+        try (var iterable = IcebergGenerics.read(table).build()) {
+            for (Record rec : iterable) {
+                String appId = (String) rec.getField("app_id");
+                Object priceObj = rec.getField("price");
+                if (priceObj == null) continue;
+                BigDecimal price = (priceObj instanceof BigDecimal)
+                    ? (BigDecimal) priceObj
+                    : new BigDecimal(priceObj.toString());
+                totals.merge(appId, price, BigDecimal::add);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to compute revenue by app", e);
+        }
+        return totals;
+    }
+
+    public long countByUser(String userId) {
+        Table table = catalog.loadTable(TABLE_ID);
+        long count = 0L;
+        try (var iterable = IcebergGenerics.read(table)
+                .where(Expressions.equal("user_id", userId))
+                .build()) {
+            for (Record ignored : iterable) {
+                count++;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to count records by user", e);
+        }
+        return count;
     }
 }

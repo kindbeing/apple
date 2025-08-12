@@ -27,7 +27,9 @@ public class IcebergConfig {
             "s3.endpoint", "http://localhost:9000",
             "s3.access-key-id", "minioadmin",
             "s3.secret-access-key", "minioadmin123",
-            "s3.path-style-access", "true"
+            "s3.path-style-access", "true",
+            // Required by AWS SDK v2
+            "s3.region", "us-east-1"
         ));
         return catalog;
     }

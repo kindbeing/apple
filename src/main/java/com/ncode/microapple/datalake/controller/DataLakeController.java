@@ -9,10 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -104,6 +102,21 @@ public class DataLakeController {
     public ResponseEntity<String> getTimestampMinutesAgo(@PathVariable int minutes) {
         Instant past = Instant.now().minusSeconds(minutes * 60L);
         return ResponseEntity.ok(past.toString());
+    }
+
+    // Intelligence endpoints
+    @GetMapping("/stats/revenue-by-app")
+    public ResponseEntity<Map<String, String>> revenueByApp() {
+        Map<String, java.math.BigDecimal> raw = icebergService.revenueByApp();
+        Map<String, String> asString = raw.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toPlainString()));
+        return ResponseEntity.ok(asString);
+    }
+
+    @GetMapping("/stats/count-by-user")
+    public ResponseEntity<Map<String, Object>> countByUser(@RequestParam String userId) {
+        long count = icebergService.countByUser(userId);
+        return ResponseEntity.ok(Map.of("userId", userId, "count", count));
     }
 
     private PurchaseRecord convertToDto(Record record) {

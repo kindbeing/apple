@@ -220,3 +220,21 @@ After PostgreSQL CDC is working smoothly:
 - Add MongoDB operations (content metadata)
 - Multi-database CDC demonstration
 - Cross-database transaction scenarios
+
+---
+
+## 📈 Intelligence Verification (Iceberg-backed)
+
+After creating data:
+
+```http
+GET http://localhost:8090/api/datalake/stats/revenue-by-app
+```
+
+Then check count by user:
+
+```http
+GET http://localhost:8090/api/datalake/stats/count-by-user?userId=testUser-1
+```
+
+Expect non-zero totals and counts.
